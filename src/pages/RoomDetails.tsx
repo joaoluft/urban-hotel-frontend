@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Bed } from 'lucide-react';
 import { mockRooms } from '@/data/mockData';
 import Layout from '@/components/Layout';
@@ -11,6 +12,7 @@ const RoomDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const room = mockRooms.find(r => r.id === id);
+  const [days, setDays] = useState<number>(1);
 
   if (!room) {
     return (
@@ -26,6 +28,8 @@ const RoomDetails = () => {
       </Layout>
     );
   }
+
+  const totalPrice = room.price * days;
 
   return (
     <Layout>
@@ -65,15 +69,32 @@ const RoomDetails = () => {
             <div className="flex items-center justify-between pt-6 border-t">
               <div>
                 <span className="text-3xl font-bold text-gray-900">
-                  R$ {room.price.toFixed(2).replace('.', ',')}
+                  R$ {totalPrice.toFixed(2).replace('.', ',')}
                 </span>
-                <span className="text-lg text-gray-500 ml-1">/Noite</span>
+                <span className="text-lg text-gray-500 ml-1">
+                  {days === 1 ? '/Noite' : `/${days} Noites`}
+                </span>
               </div>
 
-              <div className="flex space-x-4">
-                <Button variant="outline" className="px-8">
-                  Quantidade de diárias
-                </Button>
+              <div className="flex space-x-4 items-center">
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="days-select" className="text-sm font-medium text-gray-700">
+                    Diárias:
+                  </label>
+                  <Select value={days.toString()} onValueChange={(value) => setDays(Number(value))}>
+                    <SelectTrigger className="w-20" id="days-select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 30 }, (_, i) => i + 1).map((day) => (
+                        <SelectItem key={day} value={day.toString()}>
+                          {day}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
                 {room.isAvailable ? (
                   <Link to={`/reservation/${room.id}`}>
                     <Button className="px-8 bg-gray-800 hover:bg-gray-900">
