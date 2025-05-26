@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Star } from 'lucide-react';
 import { mockRooms } from '@/data/mockData';
@@ -33,39 +34,55 @@ const Rooms = () => {
 
         {/* Filtros */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Input
-              type="text"
-              placeholder="Buscar"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-11 rounded-lg"
-            />
-            <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <div className="flex-1">
+            <Label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+              Buscar quartos
+            </Label>
+            <div className="relative">
+              <Input
+                id="search"
+                type="text"
+                placeholder="Buscar"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-11 rounded-lg"
+              />
+              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            </div>
           </div>
           
-          <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
-            <SelectTrigger className="w-full sm:w-40 h-11 rounded-lg">
-              <SelectValue placeholder="Disponíveis" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="available">Disponíveis</SelectItem>
-              <SelectItem value="unavailable">Indisponíveis</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-full sm:w-40">
+            <Label className="block text-sm font-medium text-gray-700 mb-2">
+              Disponibilidade
+            </Label>
+            <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+              <SelectTrigger className="h-11 rounded-lg">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="available">Disponíveis</SelectItem>
+                <SelectItem value="unavailable">Indisponíveis</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={priceFilter} onValueChange={setPriceFilter}>
-            <SelectTrigger className="w-full sm:w-32 h-11 rounded-lg">
-              <SelectValue placeholder="Valor" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="low">Até R$ 300</SelectItem>
-              <SelectItem value="medium">R$ 300-400</SelectItem>
-              <SelectItem value="high">Acima R$ 400</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-full sm:w-32">
+            <Label className="block text-sm font-medium text-gray-700 mb-2">
+              Faixa de preço
+            </Label>
+            <Select value={priceFilter} onValueChange={setPriceFilter}>
+              <SelectTrigger className="h-11 rounded-lg">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="low">Até R$ 300</SelectItem>
+                <SelectItem value="medium">R$ 300-400</SelectItem>
+                <SelectItem value="high">Acima R$ 400</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Grid de quartos */}
