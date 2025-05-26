@@ -20,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showHeader = true }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       {showHeader && isAuthenticated && (
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,7 +61,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showHeader = true }) => {
         {children}
       </main>
 
-      <footer className="bg-white border-t py-6 mt-auto">
+      <footer className="bg-white border-t py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <p className="text-gray-600">Urban Hotel Team</p>
