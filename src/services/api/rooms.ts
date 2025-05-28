@@ -31,3 +31,16 @@ export async function filterRooms(params: FilterRoomsParams, token: string): Pro
       throw new Error(error.response?.data?.message || 'Erro ao buscar quartos');
     }
 }
+
+export async function getRoomDetails(external_id: string, token: string): Promise<Room> {
+    try {
+      const response = await api.get<Room>(`/api/room/${external_id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Erro ao buscar quartos');
+    }
+}

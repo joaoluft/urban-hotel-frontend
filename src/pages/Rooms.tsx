@@ -25,6 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface priceFilter {
   min_price?: number;
@@ -49,6 +50,7 @@ const Rooms = () => {
   });
   const [rooms, setRooms] = useState<Room[]>([]);
   const [lastPage, setLastPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
   const goToPage = (page: number) => {
@@ -57,7 +59,7 @@ const Rooms = () => {
     }
   };
 
-  const queryFilteredRooms = (
+  const queryFilteredRooms = async (
     page: number,
     per_page: number,
     available: string | boolean,
@@ -65,28 +67,28 @@ const Rooms = () => {
     max_price?: number,
     search?: string,
   ) => {
+    setIsLoading(true);
+
     const filters: FilterRoomsParams = { page, per_page };
 
     if (available !== "all") {
-      filters.available = available == "available" ? true : false;
+      filters.available = available === "available";
     }
 
     if (search) {
       filters.search = search;
     }
 
-    if (min_price) {
-      filters.min_price = min_price;
-    }
+    if (min_price) filters.min_price = min_price;
+    if (max_price) filters.max_price = max_price;
 
-    if (max_price) {
-      filters.max_price = max_price;
-    }
-
-    filterRooms(filters, user.token).then((response) => {
+    try {
+      const response = await filterRooms(filters, user.token);
       setRooms(response.items);
       setLastPage(response.last_page);
-    });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -118,10 +120,7 @@ const Rooms = () => {
         {/* Filtros */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <div className="flex-1">
-            <Label
-              htmlFor="search"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <Label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
               Buscar quartos
             </Label>
             <div className="relative">
@@ -167,10 +166,7 @@ const Rooms = () => {
                 min={0}
                 value={priceFilter.min_price ?? ""}
                 onChange={(e) =>
-                  setPriceFilter({
-                    ...priceFilter,
-                    min_price: Number(e.target.value),
-                  })
+                  setPriceFilter({ ...priceFilter, min_price: Number(e.target.value) })
                 }
                 className="h-11 rounded-lg"
               />
@@ -186,10 +182,7 @@ const Rooms = () => {
                 min={0}
                 value={priceFilter.max_price ?? ""}
                 onChange={(e) =>
-                  setPriceFilter({
-                    ...priceFilter,
-                    max_price: Number(e.target.value),
-                  })
+                  setPriceFilter({ ...priceFilter, max_price: Number(e.target.value) })
                 }
                 className="h-11 rounded-lg"
               />
@@ -199,56 +192,67 @@ const Rooms = () => {
 
         {/* Grid de quartos */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {rooms.map((room) => (
-            <Card
-              key={room.id}
-              className="hover:shadow-lg transition-shadow border-0 shadow-md"
-            >
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {room.name}
-                    </h3>
-                    <div className="flex items-center space-x-1">
-                      <span className="text-2xl font-bold text-gray-900">
-                        R$ {room.price.toFixed(2).replace(".", ",")}
-                      </span>
-                      <span className="text-sm text-gray-500">/Noite</span>
+          {isLoading
+            ? Array.from({ length: paginationFilter.per_page }).map((_, index) => (
+                <Card key={index} className="border-0 shadow-md">
+                  <CardContent className="p-6 space-y-4">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-8 w-1/2" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-10 w-32 mt-4" />
+                  </CardContent>
+                </Card>
+              ))
+            : rooms.map((room) => (
+                <Card
+                  key={room.external_id}
+                  className="hover:shadow-lg transition-shadow border-0 shadow-md"
+                >
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                          {room.name}
+                        </h3>
+                        <div className="flex items-center space-x-1">
+                          <span className="text-2xl font-bold text-gray-900">
+                            R$ {room.price.toFixed(2).replace(".", ",")}
+                          </span>
+                          <span className="text-sm text-gray-500">/Noite</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end space-y-2">
+                        <button className="text-gray-400 hover:text-yellow-500">
+                          <Star size={24} />
+                        </button>
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            room.available
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {room.available ? "Disponível" : "Indisponível"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end space-y-2">
-                    <button className="text-gray-400 hover:text-yellow-500">
-                      <Star size={24} />
-                    </button>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        room.available
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {room.available ? "Disponível" : "Indisponível"}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="flex justify-end">
-                  <Link to={`/room/${room.id}`}>
-                    <Button
-                      variant="outline"
-                      className="border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white"
-                    >
-                      Ver detalhes
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    <div className="flex justify-end">
+                      <Link to={`/room/${room.external_id}`}>
+                        <Button
+                          variant="outline"
+                          className="border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white"
+                        >
+                          Ver detalhes
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
         </div>
 
-        {rooms.length === 0 && (
+        {!isLoading && rooms.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500">
               Nenhum quarto encontrado com os filtros aplicados.
