@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { User } from '@/types';
-import { mockUser } from '@/data/mockData';
+import { login as loginRequest } from '@/services/api/login';
 
 interface AuthContextType {
   user: User | null;
@@ -27,13 +27,27 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulação de login - aqui você integraria com sua API
-    if (email === 'usuario@teste.com' && password === '123456') {
-      setUser(mockUser);
-      return true;
+  const login = async (identifier: string, password: string): Promise<boolean> => {
+    try {
+      const request = await loginRequest({
+        identifier,
+        password,
+      })
+  
+      if (request?.token) {
+        const user: User = {
+          id: request.user_id,
+          name: request.username,
+          email: request.email,
+          token: request.token,
+        }
+        setUser(user);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const logout = () => {

@@ -5,14 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, Bed } from 'lucide-react';
-import { mockRooms } from '@/data/mockData';
 import { toast } from 'sonner';
 import Layout from '@/components/Layout';
 
 const Reservation = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const room = mockRooms.find(r => r.id === id);
+  //const room = mockRooms.find(r => r.id === id);
 
   const [formData, setFormData] = useState({
     name: 'Usuário Teste',
@@ -24,20 +23,20 @@ const Reservation = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!room) {
-    return (
-      <Layout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Quarto não encontrado</h1>
-            <Button onClick={() => navigate('/rooms')} className="mt-4">
-              Voltar para lista de quartos
-            </Button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  // if (!room) {
+  //   return (
+  //     <Layout>
+  //       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  //         <div className="text-center">
+  //           <h1 className="text-2xl font-bold text-gray-900">Quarto não encontrado</h1>
+  //           <Button onClick={() => navigate('/rooms')} className="mt-4">
+  //             Voltar para lista de quartos
+  //           </Button>
+  //         </div>
+  //       </div>
+  //     </Layout>
+  //   );
+  // }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,17 +54,17 @@ const Reservation = () => {
     }, 2000);
   };
 
-  const calculateTotal = () => {
-    const checkInDate = new Date('2025-06-12');
-    const checkOutDate = new Date('2025-05-12');
-    const days = Math.max(1, Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)));
-    return {
-      days: Math.abs(days),
-      total: room.price * Math.abs(days)
-    };
-  };
+  // const calculateTotal = () => {
+  //   const checkInDate = new Date('2025-06-12');
+  //   const checkOutDate = new Date('2025-05-12');
+  //   const days = Math.max(1, Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)));
+  //   return {
+  //     days: Math.abs(days),
+  //     total: room.price * Math.abs(days)
+  //   };
+  // };
 
-  const { days, total } = calculateTotal();
+  //const { days, total } = calculateTotal();
 
   return (
     <Layout>
@@ -78,7 +77,7 @@ const Reservation = () => {
         <Card className="shadow-lg border-0">
           <CardContent className="p-8">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">{room.name}</h2>
+              <h2 className="text-2xl font-bold text-gray-900">{"teste"}</h2>
               <div className="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-lg">
                 <Bed size={32} className="text-gray-600" />
               </div>
@@ -160,9 +159,9 @@ const Reservation = () => {
                   <span className="text-sm text-gray-600">1</span>
                   <div>
                     <span className="text-3xl font-bold text-gray-900">
-                      R$ {total.toFixed(2).replace('.', ',')}
+                      R$ {Number(100).toFixed(2).replace('.', ',')}
                     </span>
-                    <span className="text-lg text-gray-500 ml-1">/ {days} Diárias</span>
+                    <span className="text-lg text-gray-500 ml-1">/ {2} Diárias</span>
                   </div>
                 </div>
 

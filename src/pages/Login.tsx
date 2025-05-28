@@ -4,16 +4,16 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Mail } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Eye, EyeOff, IdCard } from 'lucide-react';
 import { toast } from 'sonner';
 import Layout from '@/components/Layout';
 
 const Login = () => {
-  const [email, setEmail] = useState('usuario@teste.com');
-  const [password, setPassword] = useState('123456');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -27,10 +27,10 @@ const Login = () => {
         toast.success('Login realizado com sucesso!');
         navigate('/dashboard');
       } else {
-        toast.error('Email ou senha inválidos');
+        toast.error('Credenciais inválidas, tente novamente.');
       }
     } catch (error) {
-      toast.error('Erro ao fazer login');
+      toast.error('Aconteceu um problema ao fazer login');
     } finally {
       setIsLoading(false);
     }
@@ -67,13 +67,13 @@ const Login = () => {
                 <div className="relative">
                   <Input
                     type="email"
-                    placeholder="exemplo@email.com"
+                    placeholder="E-mail ou nome de usuário"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-4 pr-10 h-12 rounded-lg border-gray-300"
                     required
                   />
-                  <Mail className="absolute right-3 top-3.5 h-5 w-5 text-gray-400" />
+                  <IdCard className="absolute right-3 top-3.5 h-5 w-5 text-gray-400" />
                 </div>
 
                 <div className="relative">
