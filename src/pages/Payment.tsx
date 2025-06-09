@@ -109,18 +109,13 @@ const Payment = () => {
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
                 {/* Card Preview */}
                 <div className="flex justify-center order-2 xl:order-1">
-                  <div className="w-full max-w-sm">
+                  <div className="w-full max-w-sm" style={{ perspective: '1000px' }}>
                     <div 
-                      className={`relative w-full aspect-[1.6/1] transition-transform duration-700 ${isFlipped ? 'rotate-y-180' : ''}`}
-                      style={{ 
-                        transformStyle: 'preserve-3d',
-                        perspective: '1000px'
-                      }}
+                      className={`relative w-full aspect-[1.6/1] transition-transform duration-700 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}
                     >
                       {/* Front of card */}
                       <div 
-                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 md:p-6 text-white shadow-xl"
-                        style={{ backfaceVisibility: 'hidden' }}
+                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 md:p-6 text-white shadow-xl backface-hidden"
                       >
                         <div className="flex justify-between items-start mb-6 md:mb-8">
                           <div className="w-8 h-6 md:w-12 md:h-8 bg-yellow-400 rounded"></div>
@@ -145,11 +140,7 @@ const Payment = () => {
 
                       {/* Back of card */}
                       <div 
-                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white shadow-xl"
-                        style={{ 
-                          backfaceVisibility: 'hidden',
-                          transform: 'rotateY(180deg)'
-                        }}
+                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white shadow-xl backface-hidden rotate-y-180"
                       >
                         <div className="w-full h-8 md:h-12 bg-black mt-4 md:mt-6"></div>
                         <div className="p-4 md:p-6">
@@ -258,6 +249,20 @@ const Payment = () => {
           </Card>
         </div>
       </div>
+
+      <style jsx>{`
+        .preserve-3d {
+          transform-style: preserve-3d;
+        }
+        
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
     </Layout>
   );
 };
