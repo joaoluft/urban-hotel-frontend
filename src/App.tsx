@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import Rooms from "./pages/Rooms";
 import RoomDetails from "./pages/RoomDetails";
 import Reservation from "./pages/Reservation";
+import Payment from "./pages/Payment";
 import MyReservations from "./pages/MyReservations";
 import NotFound from "./pages/NotFound";
 import EmailConfirmation from "./pages/EmailConfirmation";
@@ -62,6 +63,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Reservation />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/payment/:id" 
+              element={
+                <ProtectedRoute>
+                  <Payment />
                 </ProtectedRoute>
               } 
             />

@@ -47,10 +47,10 @@ const Reservation = () => {
 
     setIsLoading(true);
     
-    // Simulação de API call
+    // Simulação de API call para criar reserva
     setTimeout(() => {
-      toast.success('Reserva realizada com sucesso!');
-      navigate('/my-reservations');
+      toast.success('Dados da reserva salvos com sucesso!');
+      navigate(`/payment/${id}`);
     }, 2000);
   };
 
