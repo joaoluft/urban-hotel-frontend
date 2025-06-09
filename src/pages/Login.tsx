@@ -22,15 +22,13 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
-      if (success) {
-        toast.success('Login realizado com sucesso!');
-        navigate('/dashboard');
-      } else {
-        toast.error('Credenciais inválidas, tente novamente.');
-      }
-    } catch (error) {
-      toast.error('Aconteceu um problema ao fazer login');
+      await login(email, password);
+      toast.success('Login realizado com sucesso!');
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error(error);
+      const details = error?.response?.data?.detail || 'Erro ao realizar login';
+      toast.error(details);
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +64,7 @@ const Login = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="relative">
                   <Input
-                    type="email"
+                    type="text"
                     placeholder="E-mail ou nome de usuário"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

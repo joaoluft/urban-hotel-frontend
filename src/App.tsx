@@ -17,6 +17,7 @@ import RoomDetails from "./pages/RoomDetails";
 import Reservation from "./pages/Reservation";
 import MyReservations from "./pages/MyReservations";
 import NotFound from "./pages/NotFound";
+import EmailConfirmation from "./pages/EmailConfirmation";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +31,7 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/validate-email/:code" element={<EmailValidation />} />
+            <Route path="/email-confirmation/:code" element={<EmailConfirmation />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route 
               path="/dashboard" 

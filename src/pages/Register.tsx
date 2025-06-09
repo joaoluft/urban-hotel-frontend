@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff, Mail, User, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import Layout from '@/components/Layout';
+import { register } from '@/services/api/register';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -34,10 +35,16 @@ const Register = () => {
         return;
       }
 
-      // Simulação de cadastro - aqui você integraria com sua API
-      // Por enquanto, vamos simular um sucesso após 1 segundo
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const registered = await register({
+        username: name,
+        email,
+        cpf: document,
+        password,
+        confirm_password: confirmPassword,
+      })
+
+      if (!registered.success) throw new Error;
+    
       toast.success('Cadastro realizado com sucesso!');
       navigate('/login');
     } catch (error) {
@@ -78,7 +85,7 @@ const Register = () => {
                 <div className="relative">
                   <Input
                     type="text"
-                    placeholder="Nome completo"
+                    placeholder="Nome de usuário"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="pl-4 pr-10 h-12 rounded-lg border-gray-300"
