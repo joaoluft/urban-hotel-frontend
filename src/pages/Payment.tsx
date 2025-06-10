@@ -6,23 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 import Layout from '@/components/Layout';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { createBooking } from '@/services/api/bookingCreation';
 
 const Payment = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, checkIn, checkOut } = useParams<{ id: string, checkIn: string, checkOut: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [formData, setFormData] = useState({
     currency: 'BRL',
     card_number: '',
     expiration: '',
     cvv: ''
   });
-  
+
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -73,19 +70,30 @@ const Payment = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.card_number || !formData.expiration || !formData.cvv) {
       toast.error('Preencha todos os campos do cartão');
       return;
     }
 
     setIsLoading(true);
-    
-    // Simulação de processamento de pagamento
-    setTimeout(() => {
-      toast.success('Pagamento processado com sucesso!');
+
+    createBooking({
+      checkin_date: checkIn || '',
+      checkout_date: checkOut || '',
+      room_external_id: id || '',
+      card_number: formData.card_number.replace(/\s+/g, ''),
+      card_expiration_date: formData.expiration,
+      card_code: formData.cvv
+    }).then(() => {
+      setIsLoading(false);
+      toast.success('Reserva realizada com sucesso!');
       navigate('/my-bookings');
-    }, 2000);
+    }).catch((error) => {
+      setIsLoading(false);
+      console.error(error);
+      toast.error('Erro ao realizar reserva. Tente novamente.');
+    })
   };
 
   return (
@@ -98,8 +106,8 @@ const Payment = () => {
           
           .card {
             position: relative;
-            width: 280px;
-            height: 180px;
+            width: 320px;
+            height: 200px;
             transform-style: preserve-3d;
             transition: transform 0.6s;
           }
@@ -130,7 +138,7 @@ const Payment = () => {
           }
         `}
       </style>
-      
+
       <div className="min-h-screen bg-gray-50 py-4 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-6">
@@ -154,14 +162,10 @@ const Payment = () => {
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
                 {/* Card Preview */}
                 <div className="flex justify-center order-2 xl:order-1">
-                  <div className="w-full max-w-sm" style={{ perspective: '1000px' }}>
-                    <div 
-                      className={`relative w-full aspect-[1.6/1] transition-transform duration-700 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}
-                    >
+                  <div className="card-container">
+                    <div className={`card ${isFlipped ? 'flipped' : ''}`}>
                       {/* Front of card */}
-                      <div 
-                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 md:p-6 text-white shadow-xl backface-hidden"
-                      >
+                      <div className="card-face card-front">
                         <div className="flex justify-between items-start mb-6 md:mb-8">
                           <div className="w-8 h-6 md:w-12 md:h-8 bg-yellow-400 rounded"></div>
                           <CreditCard size={24} className="text-white/80 md:w-8 md:h-8" />
@@ -184,9 +188,7 @@ const Payment = () => {
                       </div>
 
                       {/* Back of card */}
-                      <div 
-                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white shadow-xl backface-hidden rotate-y-180"
-                      >
+                      <div className="card-face card-back">
                         <div className="w-full h-8 md:h-12 bg-black mt-4 md:mt-6"></div>
                         <div className="p-4 md:p-6">
                           <div className="flex justify-end">
@@ -260,28 +262,11 @@ const Payment = () => {
                     </div>
 
                     <div className="pt-4 md:pt-6 border-t">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                        <div className="flex items-baseline space-x-2">
-                          <span className="text-2xl md:text-3xl font-bold text-gray-900">
-                            R$ 200,00
-                          </span>
-                          <span className="text-base md:text-lg text-gray-500">Total</span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => navigate(-1)}
-                          className="w-full sm:w-auto px-6 md:px-8 h-10 md:h-12"
-                        >
-                          Voltar
-                        </Button>
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <Button
                           type="submit"
+                          className="rounded-md w-full md:w-auto"
                           disabled={isLoading}
-                          className="w-full sm:flex-1 px-6 md:px-8 h-10 md:h-12 bg-gray-800 hover:bg-gray-900"
                         >
                           {isLoading ? 'Processando...' : 'Finalizar Pagamento'}
                         </Button>
@@ -299,39 +284,3 @@ const Payment = () => {
 };
 
 export default Payment;
-
-<style>
-  {`
-    .card-container {
-      perspective: 1000px;
-    }
-    .card {
-      position: relative;
-      width: 280px;
-      height: 180px;
-      transform-style: preserve-3d;
-      transition: transform 0.6s;
-    }
-    .card.flipped {
-      transform: rotateY(180deg);
-    }
-    .card-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-    .card-front {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    .card-back {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-      color: white;
-      transform: rotateY(180deg);
-    }
-  `}
-</style>

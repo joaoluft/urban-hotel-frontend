@@ -61,9 +61,6 @@ const RoomGrid = ({ rooms, isLoading, itemsPerPage }: RoomGridProps) => {
                 </div>
               </div>
               <div className="flex flex-col items-end space-y-2">
-                <button className="text-gray-400 hover:text-yellow-500">
-                  <Star size={24} />
-                </button>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${
                     room.available

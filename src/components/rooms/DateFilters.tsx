@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -8,7 +7,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface DateFiltersProps {
@@ -16,6 +15,7 @@ interface DateFiltersProps {
   checkOutDate?: Date;
   onCheckInChange: (date: Date | undefined) => void;
   onCheckOutChange: (date: Date | undefined) => void;
+  maxNights?: number;
 }
 
 const DateFilters = ({
@@ -23,6 +23,7 @@ const DateFilters = ({
   checkOutDate,
   onCheckInChange,
   onCheckOutChange,
+  maxNights,
 }: DateFiltersProps) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4">
@@ -40,7 +41,11 @@ const DateFilters = ({
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {checkInDate ? format(checkInDate, "dd/MM/yyyy") : <span>Selecione a data</span>}
+              {checkInDate ? (
+                format(checkInDate, "dd/MM/yyyy")
+              ) : (
+                <span>Selecione a data</span>
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -48,9 +53,18 @@ const DateFilters = ({
               mode="single"
               selected={checkInDate}
               onSelect={onCheckInChange}
-              disabled={(date) => date < new Date()}
               initialFocus
               className="p-3 pointer-events-auto"
+              disabled={(date) => {
+                const today = new Date();
+                if (date < today) return true;
+
+                if (checkOutDate) {
+                  return date > checkOutDate;
+                }
+
+                return false;
+              }}
             />
           </PopoverContent>
         </Popover>
@@ -70,7 +84,11 @@ const DateFilters = ({
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {checkOutDate ? format(checkOutDate, "dd/MM/yyyy") : <span>Selecione a data</span>}
+              {checkOutDate ? (
+                format(checkOutDate, "dd/MM/yyyy")
+              ) : (
+                <span>Selecione a data</span>
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -78,7 +96,16 @@ const DateFilters = ({
               mode="single"
               selected={checkOutDate}
               onSelect={onCheckOutChange}
-              disabled={(date) => !checkInDate || date <= checkInDate}
+              disabled={(date) => {
+                if (!checkInDate) return true;
+
+                const minDate = addDays(checkInDate, 1);
+                const maxDate = maxNights
+                  ? addDays(checkInDate, maxNights)
+                  : undefined;
+
+                return date <= checkInDate || (maxDate && date > maxDate);
+              }}
               initialFocus
               className="p-3 pointer-events-auto"
             />

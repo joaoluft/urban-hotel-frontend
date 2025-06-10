@@ -27,16 +27,13 @@ export interface Room {
   price: number;
 }
 
-export interface Reservation {
-  id: string;
-  roomId: string;
-  roomName: string;
-  userId: string;
-  guestName: string;
-  guestDocument: string;
-  checkIn: string;
-  checkOut: string;
-  totalPrice: number;
-  days: number;
-  status: 'confirmed' | 'pending' | 'cancelled';
+export interface Booking {
+  external_id: string;
+  room_id: string;
+  user_id: string;
+  room_name: string;
+  payment_status: "SUCCESS" | "FAILED" | "REFUNDED";
+  amount: number;
+  checkin_date: string;
+  checkout_date: string;
 }

@@ -14,9 +14,9 @@ import EmailValidation from "./pages/EmailValidation";
 import Dashboard from "./pages/Dashboard";
 import Rooms from "./pages/Rooms";
 import RoomDetails from "./pages/RoomDetails";
-import Reservation from "./pages/Reservation";
+import Booking from "./pages/Booking";
 import Payment from "./pages/Payment";
-import MyReservations from "./pages/MyReservations";
+import MyBookings from "./pages/MyBookings";
 import NotFound from "./pages/NotFound" ;
 import EmailConfirmation from "./pages/EmailConfirmation";
 
@@ -59,15 +59,15 @@ const App = () => (
               } 
             />
             <Route 
-              path="/reservation/:id" 
+              path="/booking/:id/:days" 
               element={
                 <ProtectedRoute>
-                  <Reservation />
+                  <Booking />
                 </ProtectedRoute>
               } 
             />
             <Route 
-              path="/payment/:id" 
+              path="/payment/:id/:checkIn/:checkOut" 
               element={
                 <ProtectedRoute>
                   <Payment />
@@ -78,7 +78,7 @@ const App = () => (
               path="/my-bookings" 
               element={
                 <ProtectedRoute>
-                  <MyReservations />
+                  <MyBookings />
                 </ProtectedRoute>
               } 
             />
