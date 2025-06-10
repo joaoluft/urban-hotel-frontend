@@ -17,7 +17,7 @@ import RoomDetails from "./pages/RoomDetails";
 import Reservation from "./pages/Reservation";
 import Payment from "./pages/Payment";
 import MyReservations from "./pages/MyReservations";
-import NotFound from "./pages/NotFound";
+import NotFound from "./pages/NotFound" ;
 import EmailConfirmation from "./pages/EmailConfirmation";
 
 const queryClient = new QueryClient();
@@ -75,7 +75,7 @@ const App = () => (
               } 
             />
             <Route 
-              path="/my-reservations" 
+              path="/my-bookings" 
               element={
                 <ProtectedRoute>
                   <MyReservations />

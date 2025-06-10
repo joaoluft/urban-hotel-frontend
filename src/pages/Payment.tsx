@@ -84,7 +84,7 @@ const Payment = () => {
     // Simulação de processamento de pagamento
     setTimeout(() => {
       toast.success('Pagamento processado com sucesso!');
-      navigate('/my-reservations');
+      navigate('/my-bookings');
     }, 2000);
   };
 

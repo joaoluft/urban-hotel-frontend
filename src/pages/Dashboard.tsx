@@ -25,7 +25,7 @@ const Dashboard = () => {
       title: 'Minhas reservas',
       description: 'Ver reservas solicitadas',
       icon: Bed,
-      link: '/my-reservations',
+      link: '/my-bookings',
       color: 'bg-purple-50 text-purple-600'
     },
     {
