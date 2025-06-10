@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,7 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Star } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Search, Star, CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import Layout from "@/components/Layout";
 import { Room } from "@/types";
 import { filterRooms, FilterRoomsParams } from "@/services/api/rooms";
@@ -37,12 +46,21 @@ interface paginationFilter {
   per_page: number;
 }
 
+interface dateFilter {
+  check_in?: Date;
+  check_out?: Date;
+}
+
 const Rooms = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [priceFilter, setPriceFilter] = useState<priceFilter>({
     min_price: null,
     max_price: null,
+  });
+  const [dateFilter, setDateFilter] = useState<dateFilter>({
+    check_in: new Date(),
+    check_out: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias à frente
   });
   const [paginationFilter, setPaginationFilter] = useState<paginationFilter>({
     page: 1,
@@ -59,6 +77,27 @@ const Rooms = () => {
     }
   };
 
+  const handleCheckInChange = (date: Date | undefined) => {
+    if (date) {
+      setDateFilter((prev) => {
+        const newFilter = { ...prev, check_in: date };
+        // Se a data de check-out for menor que check-in, ajustar check-out
+        if (prev.check_out && date >= prev.check_out) {
+          const nextDay = new Date(date);
+          nextDay.setDate(nextDay.getDate() + 1);
+          newFilter.check_out = nextDay;
+        }
+        return newFilter;
+      });
+    }
+  };
+
+  const handleCheckOutChange = (date: Date | undefined) => {
+    if (date && dateFilter.check_in && date > dateFilter.check_in) {
+      setDateFilter((prev) => ({ ...prev, check_out: date }));
+    }
+  };
+
   const queryFilteredRooms = async (
     page: number,
     per_page: number,
@@ -66,6 +105,8 @@ const Rooms = () => {
     min_price?: number,
     max_price?: number,
     search?: string,
+    check_in?: Date,
+    check_out?: Date
   ) => {
     setIsLoading(true);
 
@@ -81,6 +122,14 @@ const Rooms = () => {
 
     if (min_price) filters.min_price = min_price;
     if (max_price) filters.max_price = max_price;
+    
+    // Adicionar filtros de data se disponíveis
+    if (check_in) {
+      filters.check_in = format(check_in, 'yyyy-MM-dd');
+    }
+    if (check_out) {
+      filters.check_out = format(check_out, 'yyyy-MM-dd');
+    }
 
     try {
       const response = await filterRooms(filters, user.token);
@@ -98,7 +147,9 @@ const Rooms = () => {
       availabilityFilter,
       priceFilter.min_price,
       priceFilter.max_price,
-      searchTerm
+      searchTerm,
+      dateFilter.check_in,
+      dateFilter.check_out
     );
   }, [
     paginationFilter.page,
@@ -106,7 +157,9 @@ const Rooms = () => {
     availabilityFilter,
     priceFilter.min_price,
     priceFilter.max_price,
-    searchTerm
+    searchTerm,
+    dateFilter.check_in,
+    dateFilter.check_out
   ]);
 
   return (
@@ -118,43 +171,110 @@ const Rooms = () => {
         </div>
 
         {/* Filtros */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex-1">
-            <Label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
-              Buscar quartos
-            </Label>
-            <div className="relative">
-              <Input
-                id="search"
-                type="text"
-                placeholder="Quarto com vista para o mar..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-11 rounded-lg"
-              />
-              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+        <div className="space-y-4 mb-8">
+          {/* Primeira linha - Busca e Disponibilidade */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <Label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+                Buscar quartos
+              </Label>
+              <div className="relative">
+                <Input
+                  id="search"
+                  type="text"
+                  placeholder="Quarto com vista para o mar..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-11 rounded-lg"
+                />
+                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+
+            <div className="w-full sm:w-40">
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                Disponibilidade
+              </Label>
+              <Select
+                value={availabilityFilter}
+                onValueChange={setAvailabilityFilter}
+              >
+                <SelectTrigger className="h-11 rounded-lg">
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="available">Disponíveis</SelectItem>
+                  <SelectItem value="unavailable">Indisponíveis</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <div className="w-full sm:w-40">
-            <Label className="block text-sm font-medium text-gray-700 mb-2">
-              Disponibilidade
-            </Label>
-            <Select
-              value={availabilityFilter}
-              onValueChange={setAvailabilityFilter}
-            >
-              <SelectTrigger className="h-11 rounded-lg">
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="available">Disponíveis</SelectItem>
-                <SelectItem value="unavailable">Indisponíveis</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Segunda linha - Datas */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                Data de Check-in
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full h-11 justify-start text-left font-normal rounded-lg",
+                      !dateFilter.check_in && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFilter.check_in ? format(dateFilter.check_in, "dd/MM/yyyy") : <span>Selecione a data</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFilter.check_in}
+                    onSelect={handleCheckInChange}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="flex-1">
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                Data de Check-out
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full h-11 justify-start text-left font-normal rounded-lg",
+                      !dateFilter.check_out && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFilter.check_out ? format(dateFilter.check_out, "dd/MM/yyyy") : <span>Selecione a data</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFilter.check_out}
+                    onSelect={handleCheckOutChange}
+                    disabled={(date) => !dateFilter.check_in || date <= dateFilter.check_in}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
+          {/* Terceira linha - Preços */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="w-full sm:w-32">
               <Label className="block text-sm font-medium text-gray-700 mb-2">

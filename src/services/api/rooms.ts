@@ -8,8 +8,9 @@ export interface FilterRoomsParams {
     min_price?: number;
     max_price?: number;
     search?: string;
+    check_in?: string;
+    check_out?: string;
 }
-
 
 export interface FilterRoomsResponse {
     page: number;
