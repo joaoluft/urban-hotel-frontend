@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Room } from "@/types";
@@ -105,10 +106,10 @@ const Rooms = () => {
     
     // Adicionar filtros de data se disponíveis
     if (check_in) {
-      filters.check_in = format(check_in, 'yyyy-MM-dd');
+      filters.checkin_date = format(check_in, 'yyyy-MM-dd');
     }
     if (check_out) {
-      filters.check_out = format(check_out, 'yyyy-MM-dd');
+      filters.checkout_date = format(check_out, 'yyyy-MM-dd');
     }
 
     try {
