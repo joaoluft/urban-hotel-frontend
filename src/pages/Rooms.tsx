@@ -5,9 +5,7 @@ import { Room } from "@/types";
 import { filterRooms, FilterRoomsParams } from "@/services/api/rooms";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
-import SearchFilters from "@/components/rooms/SearchFilters";
-import DateFilters from "@/components/rooms/DateFilters";
-import PriceFilters from "@/components/rooms/PriceFilters";
+import RoomsFilters from "@/components/rooms/RoomsFilters";
 import RoomGrid from "@/components/rooms/RoomGrid";
 import RoomsPagination from "@/components/rooms/RoomsPagination";
 
@@ -147,47 +145,44 @@ const Rooms = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-8">
-          <div className="w-2 h-2 bg-blue-500 rounded-full mx-auto mb-4"></div>
-          <h1 className="text-3xl font-bold text-gray-900">Lista de quartos</h1>
-        </div>
-
-        {/* Filtros */}
-        <div className="space-y-4 mb-8">
-          <SearchFilters
-            searchTerm={searchTerm}
-            availabilityFilter={availabilityFilter}
-            onSearchChange={setSearchTerm}
-            onAvailabilityChange={setAvailabilityFilter}
-          />
-
-          <DateFilters
-            checkInDate={dateFilter.check_in}
-            checkOutDate={dateFilter.check_out}
-            onCheckInChange={handleCheckInChange}
-            onCheckOutChange={handleCheckOutChange}
-          />
-
-          <PriceFilters
-            minPrice={priceFilter.min_price}
-            maxPrice={priceFilter.max_price}
-            onMinPriceChange={handleMinPriceChange}
-            onMaxPriceChange={handleMaxPriceChange}
-          />
-        </div>
-
-        <RoomGrid
-          rooms={rooms}
-          isLoading={isLoading}
-          itemsPerPage={paginationFilter.per_page}
+      <div className="flex min-h-screen">
+        {/* Sidebar com filtros */}
+        <RoomsFilters
+          searchTerm={searchTerm}
+          availabilityFilter={availabilityFilter}
+          minPrice={priceFilter.min_price}
+          maxPrice={priceFilter.max_price}
+          checkInDate={dateFilter.check_in}
+          checkOutDate={dateFilter.check_out}
+          onSearchChange={setSearchTerm}
+          onAvailabilityChange={setAvailabilityFilter}
+          onMinPriceChange={handleMinPriceChange}
+          onMaxPriceChange={handleMaxPriceChange}
+          onCheckInChange={handleCheckInChange}
+          onCheckOutChange={handleCheckOutChange}
         />
 
-        <RoomsPagination
-          currentPage={paginationFilter.page}
-          lastPage={lastPage}
-          onPageChange={goToPage}
-        />
+        {/* Conteúdo principal */}
+        <div className="flex-1 px-6 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <div className="w-2 h-2 bg-blue-500 rounded-full mx-auto mb-4"></div>
+              <h1 className="text-3xl font-bold text-gray-900">Lista de quartos</h1>
+            </div>
+
+            <RoomGrid
+              rooms={rooms}
+              isLoading={isLoading}
+              itemsPerPage={paginationFilter.per_page}
+            />
+
+            <RoomsPagination
+              currentPage={paginationFilter.page}
+              lastPage={lastPage}
+              onPageChange={goToPage}
+            />
+          </div>
+        </div>
       </div>
     </Layout>
   );

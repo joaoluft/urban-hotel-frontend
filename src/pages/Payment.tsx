@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 import Layout from '@/components/Layout';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const Payment = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [formData, setFormData] = useState({
     currency: 'BRL',
@@ -85,6 +90,47 @@ const Payment = () => {
 
   return (
     <Layout>
+      <style>
+        {`
+          .card-container {
+            perspective: 1000px;
+          }
+          
+          .card {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+          }
+          
+          .card.flipped {
+            transform: rotateY(180deg);
+          }
+          
+          .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          }
+          
+          .card-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+          }
+          
+          .card-back {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+            transform: rotateY(180deg);
+          }
+        `}
+      </style>
+      
       <div className="min-h-screen bg-gray-50 py-4 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-6">
@@ -248,20 +294,6 @@ const Payment = () => {
           </Card>
         </div>
       </div>
-
-      <style jsx>{`
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
     </Layout>
   );
 };
@@ -275,8 +307,8 @@ export default Payment;
     }
     .card {
       position: relative;
-      width: 100%;
-      height: 200px;
+      width: 280px;
+      height: 180px;
       transform-style: preserve-3d;
       transition: transform 0.6s;
     }
@@ -290,16 +322,16 @@ export default Payment;
       backface-visibility: hidden;
       border-radius: 12px;
       padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .card-back {
-      transform: rotateY(180deg);
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
     .card-front {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      color: white;
+      transform: rotateY(180deg);
     }
   `}
 </style>
