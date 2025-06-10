@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import Layout from "@/components/Layout";
 import { Room } from "@/types";
@@ -113,7 +112,7 @@ const Rooms = () => {
     }
 
     try {
-      const response = await filterRooms(filters, user.token);
+      const response = await filterRooms(filters);
       setRooms(response.items);
       setLastPage(response.last_page);
     } finally {

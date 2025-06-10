@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User } from '@/types';
 import { login as loginRequest } from '@/services/api/login';
 
@@ -26,6 +26,22 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Carrega a sessão do localStorage ao inicializar
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Erro ao carregar sessão:', error);
+        localStorage.removeItem('user');
+      }
+    }
+    setIsLoading(false);
+  }, []);
 
   const login = async (identifier: string, password: string): Promise<boolean> => {
     try {
@@ -42,6 +58,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           token: request.token,
         }
         setUser(user);
+        // Salva a sessão no localStorage
+        localStorage.setItem('user', JSON.stringify(user));
         return true;
       }
       return false;
@@ -52,9 +70,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    // Remove a sessão do localStorage
+    localStorage.removeItem('user');
   };
 
   const isAuthenticated = !!user;
+
+  // Mostra loading enquanto carrega a sessão
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>

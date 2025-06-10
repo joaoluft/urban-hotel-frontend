@@ -1,3 +1,4 @@
+
 import { Room } from '@/types';
 import api from '../axios';
 
@@ -19,13 +20,10 @@ export interface FilterRoomsResponse {
     items: Room[];
 }
   
-export async function filterRooms(params: FilterRoomsParams, token: string): Promise<FilterRoomsResponse> {
+export async function filterRooms(params: FilterRoomsParams): Promise<FilterRoomsResponse> {
     try {
       const response = await api.get<FilterRoomsResponse>('/api/room/', {
         params,
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
       });
       return response.data;
     } catch (error: any) {
@@ -33,13 +31,9 @@ export async function filterRooms(params: FilterRoomsParams, token: string): Pro
     }
 }
 
-export async function getRoomDetails(external_id: string, token: string): Promise<Room> {
+export async function getRoomDetails(external_id: string): Promise<Room> {
     try {
-      const response = await api.get<Room>(`/api/room/${external_id}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.get<Room>(`/api/room/${external_id}`);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Erro ao buscar quartos');
