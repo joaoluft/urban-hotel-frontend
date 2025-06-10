@@ -1,40 +1,15 @@
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { Search, Star, CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import Layout from "@/components/Layout";
 import { Room } from "@/types";
 import { filterRooms, FilterRoomsParams } from "@/services/api/rooms";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
+import SearchFilters from "@/components/rooms/SearchFilters";
+import DateFilters from "@/components/rooms/DateFilters";
+import PriceFilters from "@/components/rooms/PriceFilters";
+import RoomGrid from "@/components/rooms/RoomGrid";
+import RoomsPagination from "@/components/rooms/RoomsPagination";
 
 interface priceFilter {
   min_price?: number;
@@ -96,6 +71,14 @@ const Rooms = () => {
     if (date && dateFilter.check_in && date > dateFilter.check_in) {
       setDateFilter((prev) => ({ ...prev, check_out: date }));
     }
+  };
+
+  const handleMinPriceChange = (value: number) => {
+    setPriceFilter((prev) => ({ ...prev, min_price: value }));
+  };
+
+  const handleMaxPriceChange = (value: number) => {
+    setPriceFilter((prev) => ({ ...prev, max_price: value }));
   };
 
   const queryFilteredRooms = async (
@@ -172,255 +155,39 @@ const Rooms = () => {
 
         {/* Filtros */}
         <div className="space-y-4 mb-8">
-          {/* Primeira linha - Busca e Disponibilidade */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <Label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
-                Buscar quartos
-              </Label>
-              <div className="relative">
-                <Input
-                  id="search"
-                  type="text"
-                  placeholder="Quarto com vista para o mar..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-11 rounded-lg"
-                />
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              </div>
-            </div>
+          <SearchFilters
+            searchTerm={searchTerm}
+            availabilityFilter={availabilityFilter}
+            onSearchChange={setSearchTerm}
+            onAvailabilityChange={setAvailabilityFilter}
+          />
 
-            <div className="w-full sm:w-40">
-              <Label className="block text-sm font-medium text-gray-700 mb-2">
-                Disponibilidade
-              </Label>
-              <Select
-                value={availabilityFilter}
-                onValueChange={setAvailabilityFilter}
-              >
-                <SelectTrigger className="h-11 rounded-lg">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="available">Disponíveis</SelectItem>
-                  <SelectItem value="unavailable">Indisponíveis</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <DateFilters
+            checkInDate={dateFilter.check_in}
+            checkOutDate={dateFilter.check_out}
+            onCheckInChange={handleCheckInChange}
+            onCheckOutChange={handleCheckOutChange}
+          />
 
-          {/* Segunda linha - Datas */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <Label className="block text-sm font-medium text-gray-700 mb-2">
-                Data de Check-in
-              </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full h-11 justify-start text-left font-normal rounded-lg",
-                      !dateFilter.check_in && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFilter.check_in ? format(dateFilter.check_in, "dd/MM/yyyy") : <span>Selecione a data</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateFilter.check_in}
-                    onSelect={handleCheckInChange}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="flex-1">
-              <Label className="block text-sm font-medium text-gray-700 mb-2">
-                Data de Check-out
-              </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full h-11 justify-start text-left font-normal rounded-lg",
-                      !dateFilter.check_out && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFilter.check_out ? format(dateFilter.check_out, "dd/MM/yyyy") : <span>Selecione a data</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateFilter.check_out}
-                    onSelect={handleCheckOutChange}
-                    disabled={(date) => !dateFilter.check_in || date <= dateFilter.check_in}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          {/* Terceira linha - Preços */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="w-full sm:w-32">
-              <Label className="block text-sm font-medium text-gray-700 mb-2">
-                Preço mínimo
-              </Label>
-              <Input
-                type="number"
-                placeholder="0"
-                min={0}
-                value={priceFilter.min_price ?? ""}
-                onChange={(e) =>
-                  setPriceFilter({ ...priceFilter, min_price: Number(e.target.value) })
-                }
-                className="h-11 rounded-lg"
-              />
-            </div>
-
-            <div className="w-full sm:w-32">
-              <Label className="block text-sm font-medium text-gray-700 mb-2">
-                Preço máximo
-              </Label>
-              <Input
-                type="number"
-                placeholder="0"
-                min={0}
-                value={priceFilter.max_price ?? ""}
-                onChange={(e) =>
-                  setPriceFilter({ ...priceFilter, max_price: Number(e.target.value) })
-                }
-                className="h-11 rounded-lg"
-              />
-            </div>
-          </div>
+          <PriceFilters
+            minPrice={priceFilter.min_price}
+            maxPrice={priceFilter.max_price}
+            onMinPriceChange={handleMinPriceChange}
+            onMaxPriceChange={handleMaxPriceChange}
+          />
         </div>
 
-        {/* Grid de quartos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {isLoading
-            ? Array.from({ length: paginationFilter.per_page }).map((_, index) => (
-                <Card key={index} className="border-0 shadow-md">
-                  <CardContent className="p-6 space-y-4">
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-8 w-1/2" />
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-10 w-32 mt-4" />
-                  </CardContent>
-                </Card>
-              ))
-            : rooms.map((room) => (
-                <Card
-                  key={room.external_id}
-                  className="hover:shadow-lg transition-shadow border-0 shadow-md"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                          {room.name}
-                        </h3>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-2xl font-bold text-gray-900">
-                            R$ {room.price.toFixed(2).replace(".", ",")}
-                          </span>
-                          <span className="text-sm text-gray-500">/Noite</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end space-y-2">
-                        <button className="text-gray-400 hover:text-yellow-500">
-                          <Star size={24} />
-                        </button>
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            room.available
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {room.available ? "Disponível" : "Indisponível"}
-                        </span>
-                      </div>
-                    </div>
+        <RoomGrid
+          rooms={rooms}
+          isLoading={isLoading}
+          itemsPerPage={paginationFilter.per_page}
+        />
 
-                    <div className="flex justify-end">
-                      <Link to={`/room/${room.external_id}`}>
-                        <Button
-                          variant="outline"
-                          className="border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white"
-                        >
-                          Ver detalhes
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-        </div>
-
-        {!isLoading && rooms.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">
-              Nenhum quarto encontrado com os filtros aplicados.
-            </p>
-          </div>
-        )}
-
-        <div className="pt-10">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={() => goToPage(paginationFilter.page - 1)}
-                  className={
-                    paginationFilter.page === 1
-                      ? "pointer-events-none opacity-50"
-                      : ""
-                  }
-                />
-              </PaginationItem>
-
-              {Array.from({ length: lastPage }, (_, i) => i + 1).map((page) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    href="#"
-                    isActive={page === paginationFilter.page}
-                    onClick={() => goToPage(page)}
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={() => goToPage(paginationFilter.page + 1)}
-                  className={
-                    paginationFilter.page === lastPage
-                      ? "pointer-events-none opacity-50"
-                      : ""
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+        <RoomsPagination
+          currentPage={paginationFilter.page}
+          lastPage={lastPage}
+          onPageChange={goToPage}
+        />
       </div>
     </Layout>
   );

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -268,3 +267,39 @@ const Payment = () => {
 };
 
 export default Payment;
+
+<style>
+  {`
+    .card-container {
+      perspective: 1000px;
+    }
+    .card {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+    }
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .card-front {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+  `}
+</style>
